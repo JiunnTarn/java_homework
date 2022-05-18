@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.team9.project.repository.mapper.RewardMapper">
+    <resultMap id="RewardMap" type="com.team9.project.models.Reward">
+        <id property="id" column="rid"/>
+        <result property="rewardId" column="reward_id"/>
+        <result property="rewardName" column="reward_name"/>
+        <result property="rewardTime" column="reward_time"/>
+        <result property="credit" column="credit"/>
+        <collection property="student" ofType="com.team9.project.models.Student">
+            <id property="id" column="id"/>
+            <result property="studentId" column="student_id"/>
+            <result property="citizenId" column="citizen_id"/>
+            <result property="sex" column="sex"/>
+            <result property="age" column="age"/>
+            <result property="dept" column="dept"/>
+            <result property="birthday" column="birthday"/>
+            <result property="name" column="name"/>
+            <result property="phone" column="phone"/>
+            <result property="hometown" column="hometown"/>
+            <result property="highSchool" column="high_school"/>
+            <result property="politicalStatus" column="political_status"/>
+            <result property="classPosition" column="class_position"/>
+        </collection>
+    </resultMap>
+
+    <select id="getRewardById" resultMap="RewardMap">
+        select r.id as rid, r.reward_id, r.reward_name, r.reward_time, r.credit, s.*
+        from reward r
+        left outer join student_reward sr on r.id = sr.rid
+        left outer join student s on s.id=sr.sid
+        where r.id = #{id}
+    </select>
+
+    <select id="getRewardByRewardInfo" resultMap="RewardMap">
+        select r.id as rid, r.reward_id, r.reward_name, r.reward_time, r.credit, s.*
+        from reward r
+        left outer join student_reward sr on r.id = sr.rid
+        left outer join student s on s.id=sr.sid
+        where r.reward_name like '%${info}%' or r.reward_id = #{info}
+    </select>
+
+    <select id="getRewardByStudentInfo" resultMap="RewardMap">
+        select r.id as rid, r.reward_id, r.reward_name, r.reward_time, r.credit, s.*
+        from student s
+        left outer join student_reward sr on s.id = sr.sid
+        left outer join reward r on r.id=sr.rid
+        where s.student_id = #{studentInfo} or s.name = #{studentInfo}
+    </select>
+
+    <select id="findAll" resultMap="RewardMap">
+        select r.id as rid, r.reward_id, r.reward_name, r.reward_time, r.credit, s.*
+        from reward r
+        left outer join student_reward sr on r.id = sr.rid
+        left outer join student s on s.id=sr.sid
+    </select>
+
+    <select id="getMaxId" resultType="Integer">
+        SELECT MAX(id) FROM reward
+    </select>
+
+    <insert id="addReward" parameterType="com.team9.project.models.Reward">
+        insert into reward(id, reward_id,reward_name,reward_time, credit)
+        values (#{id}, #{rewardId}, #{rewardName}, #{rewardTime}, #{credit})
+    </insert>
+
+    <delete id="deleteReward">
+        delete from reward where id = #{id}
+    </delete>
+
+    <update id="updateReward" parameterType="com.team9.project.models.Reward">
+        update reward
+        <set>
+            <if test="rewardName !=null and rewardName !=''">
+                reward_name = #{rewardName},
+            </if>
+            <if test="rewardId !=null and rewardId !=''">
+                reward_id = #{rewardId},
+            </if>
+            <if test="rewardTime !=null">
+                reward_time = #{rewardTime},
+            </if>
+            <if test="credit !=null">
+                credit = #{credit},
+            </if>
+        </set>
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <delete id="deleteAllStudent">
+        delete
+        from student_reward
+        where rid = #{rid}
+    </delete>
+
+    <insert id="insertStudent">
+        insert into student_reward(sid, rid)
+        values (#{sid}, #{rid})
+    </insert>
+</mapper>

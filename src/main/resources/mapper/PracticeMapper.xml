@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.team9.project.repository.mapper.PracticeMapper">
+    <resultMap id="PracticeMap" type="com.team9.project.models.Practice">
+        <id property="id" column="pid"/>
+        <result property="practiceName" column="practice_name"/>
+        <result property="category" column="category"/>
+        <result property="startTime" column="start_time"/>
+        <result property="endTime" column="end_time"/>
+        <result property="credit" column="credit"/>
+        <collection property="students" ofType="com.team9.project.models.Student">
+            <id property="id" column="id"/>
+            <result property="studentId" column="student_id"/>
+            <result property="citizenId" column="citizen_id"/>
+            <result property="sex" column="sex"/>
+            <result property="age" column="age"/>
+            <result property="dept" column="dept"/>
+            <result property="birthday" column="birthday"/>
+            <result property="name" column="name"/>
+            <result property="phone" column="phone"/>
+            <result property="hometown" column="hometown"/>
+            <result property="highSchool" column="high_school"/>
+            <result property="politicalStatus" column="political_status"/>
+            <result property="classPosition" column="class_position"/>
+        </collection>
+    </resultMap>
+
+    <select id="getPracticeById" resultMap="PracticeMap">
+        select p.id as pid, p.practice_name, p.category, p.start_time, p.end_time, p.credit, s.*
+        from practice p
+        left outer join student_practice sp on p.id = sp.pid
+        left outer join student s on s.id = sp.sid
+        where p.id = #{id}
+    </select>
+
+    <select id="getPracticeByPracticeInfo" resultMap="PracticeMap">
+        select p.id as pid, p.practice_name, p.category, p.start_time, p.end_time, p.credit, s.*
+        from practice p
+        left outer join student_practice sp on p.id = sp.pid
+        left outer join student s on s.id = sp.sid
+        where p.practice_name like '%${info}%' or p.category = #{info}
+    </select>
+
+    <select id="getPracticeByStudentInfo" resultMap="PracticeMap">
+        select p.id as pid, p.practice_name, p.category, p.start_time, p.end_time, p.credit, s.*
+        from student s
+        left outer join student_practice sp on s.id = sp.sid
+        left outer join practice p on p.id=sp.pid
+        where s.student_id = #{studentInfo} or s.name = #{studentInfo}
+    </select>
+
+    <select id="findAll" resultMap="PracticeMap">
+        select p.id as pid, p.practice_name, p.category, p.start_time, p.end_time, p.credit, s.*
+        from practice p
+        left outer join student_practice sp on p.id = sp.pid
+        left outer join student s on s.id = sp.sid
+    </select>
+
+    <select id="getMaxId" resultType="Integer">
+        SELECT MAX(id) FROM practice
+    </select>
+
+    <insert id="addPractice" parameterType="com.team9.project.models.Practice">
+        insert into practice(id, practice_name, category, start_time, end_time, credit)
+        values (#{id}, #{practiceName}, #{category}, #{startTime}, #{endTime}, #{credit})
+    </insert>
+
+    <delete id="deletePracticeById">
+        delete
+        from practice
+        where id = #{id}
+    </delete>
+
+    <update id="updatePractice" parameterType="com.team9.project.models.Practice">
+        update practice
+        <set>
+            <if test="practiceName!=null and practiceName!=''">
+                practice_name = #{practiceName},
+            </if>
+            <if test="category !=null and category !=''">
+                category = #{category},
+            </if>
+            <if test="startTime !=null">
+                start_time = #{startTime},
+            </if>
+            <if test="endTime !=null">
+                end_time = #{endTime},
+            </if>
+            <if test="credit !=null">
+                credit = #{credit},
+            </if>
+        </set>
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <delete id="deleteAllStudent">
+        delete
+        from student_practice
+        where pid = #{pid}
+    </delete>
+
+    <insert id="insertStudent">
+        insert into student_practice(sid, pid)
+        values (#{sid}, #{pid})
+    </insert>
+</mapper>

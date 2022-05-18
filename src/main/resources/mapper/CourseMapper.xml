@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.team9.project.repository.mapper.CourseMapper">
+    <resultMap id="CourseMap" type="com.team9.project.models.Course">
+        <id property="id" column="cid"/>
+        <result property="courseName" column="course_name"/>
+        <result property="courseId" column="course_id"/>
+        <result property="book" column="book"/>
+        <result property="courseWare" column="course_ware"/>
+        <result property="resource" column="resource"/>
+        <result property="teacher" column="teacher"/>
+        <result property="time" column="time"/>
+        <result property="credit" column="credit"/>
+        <collection property="students" ofType="com.team9.project.models.Student">
+            <id property="id" column="id"/>
+            <result property="studentId" column="student_id"/>
+            <result property="citizenId" column="citizen_id"/>
+            <result property="sex" column="sex"/>
+            <result property="age" column="age"/>
+            <result property="dept" column="dept"/>
+            <result property="birthday" column="birthday"/>
+            <result property="name" column="name"/>
+            <result property="phone" column="phone"/>
+            <result property="hometown" column="hometown"/>
+            <result property="highSchool" column="high_school"/>
+            <result property="politicalStatus" column="political_status"/>
+            <result property="classPosition" column="class_position"/>
+        </collection>
+    </resultMap>
+
+    <select id="getCourseById" resultMap="CourseMap">
+        select c.id as cid, c.course_name, c.course_id, c.book, c.course_ware, c.resource, c.teacher, c.time, c.credit, s.*
+        from course c
+                 left outer join student_course sc on c.id = sc.cid
+                 left outer join student s on s.id = sc.sid
+        where c.id = #{id}
+    </select>
+
+    <select id="getCourseByCourseInfo" resultMap="CourseMap">
+        select c.id as cid, c.course_name, c.course_id, c.book, c.course_ware, c.resource, c.teacher, c.time, c.credit, s.*
+        from course c
+            left outer join student_course sc on c.id = sc.cid
+            left outer join student s on s.id = sc.sid
+        where c.course_name = #{info} or c.course_id = #{info} or c.teacher = #{info} or c.time like '%${info}%'
+    </select>
+
+    <select id="getCourseByStudentInfo" resultMap="CourseMap">
+        select c.id as cid, c.course_name, c.course_id, c.book, c.course_ware, c.resource, c.teacher, c.time, c.credit, s.*
+        from student s
+        left outer join student_course sc on s.id = sc.sid
+        left outer join course c on c.id=sc.cid
+        where s.student_id = #{studentInfo} or s.name = #{studentInfo}
+    </select>
+
+    <select id="findAll" resultMap="CourseMap">
+        select c.id as cid, c.course_name, c.course_id, c.book, c.course_ware, c.resource, c.teacher, c.time, c.credit, s.*
+        from course c
+        left outer join student_course sc on c.id = sc.cid
+        left outer join student s on s.id = sc.sid
+    </select>
+
+    <select id="getMaxId" resultType="Integer">
+        SELECT MAX(id) FROM course
+    </select>
+
+    <insert id="addCourse" parameterType="com.team9.project.models.Course">
+        insert into course(id,course_name,course_id,book,course_ware,resource, teacher, time, credit)
+        values (#{id}, #{courseName}, #{courseId}, #{book}, #{courseWare}, #{resource}, #{teacher}, #{time}, #{credit})
+    </insert>
+
+    <delete id="deleteCourseById">
+        delete
+        from course
+        where id = #{id}
+    </delete>
+
+    <update id="updateCourse" parameterType="com.team9.project.models.Course">
+        update course
+        <set>
+            <if test="id!=null and id!=''">
+                id = #{id},
+            </if>
+            <if test="courseName!=null and courseName!=''">
+                course_name = #{courseName},
+            </if>
+            <if test="courseId !=null and courseId !=''">
+                course_id = #{courseId},
+            </if>
+            <if test="book !=null and book !=''">
+                book = #{book},
+            </if>
+            <if test="courseWare !=null and courseWare !=''">
+                course_ware = #{courseWare},
+            </if>
+            <if test="resource !=null and resource !=''">
+                resource = #{resource},
+            </if>
+            <if test="teacher !=null and teacher !=''">
+                teacher = #{teacher},
+            </if>
+            <if test="time !=null and time !=''">
+                time = #{time},
+            </if>
+            <if test="credit !=null and credit !=''">
+                credit = #{credit},
+            </if>
+        </set>
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <delete id="deleteAllStudent">
+        delete
+        from student_course
+        where cid = #{cid}
+    </delete>
+
+    <insert id="insertStudent">
+        insert into student_course(sid, cid)
+        values (#{sid}, #{cid})
+    </insert>
+
+    <insert id="selectCourse">
+        insert into
+        student_course(cid, sid)
+        values (#{cid}, #{sid})
+    </insert>
+
+    <delete id="withdrawCourse">
+        delete
+        from student_course
+        where cid = #{cid} and sid = #{sid}
+    </delete>
+</mapper>

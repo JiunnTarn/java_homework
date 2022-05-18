@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.team9.project.repository.mapper.ActivityMapper">
+    <resultMap id="ActivityMap" type="com.team9.project.models.Activity">
+        <id property="id" column="aid"/>
+        <result property="activityName" column="activity_name"/>
+        <result property="category" column="category"/>
+        <result property="initiator" column="initiator"/>
+        <result property="startTime" column="start_time"/>
+        <result property="endTime" column="end_time"/>
+        <collection property="students" ofType="com.team9.project.models.Student">
+            <id property="id" column="id"/>
+            <result property="studentId" column="student_id"/>
+            <result property="citizenId" column="citizen_id"/>
+            <result property="sex" column="sex"/>
+            <result property="age" column="age"/>
+            <result property="dept" column="dept"/>
+            <result property="birthday" column="birthday"/>
+            <result property="name" column="name"/>
+            <result property="phone" column="phone"/>
+            <result property="hometown" column="hometown"/>
+            <result property="highSchool" column="high_school"/>
+            <result property="politicalStatus" column="political_status"/>
+            <result property="classPosition" column="class_position"/>
+        </collection>
+    </resultMap>
+
+    <select id="getActivityById" resultMap="ActivityMap">
+        select a.id as aid, a.activity_name, a.category, a.initiator, a.start_time, a.end_time, s.*
+        from activity a
+        left outer join student_activity sa on a.id = sa.aid
+        left outer join student s on s.id = sa.sid
+        where a.id = #{id}
+    </select>
+
+    <select id="getActivityByActivityInfo" resultMap="ActivityMap">
+        select a.id as aid, a.activity_name, a.category, a.initiator, a.start_time, a.end_time, s.*
+        from activity a
+        left outer join student_activity sa on a.id = sa.aid
+        left outer join student s on s.id = sa.sid
+        where a.activity_name like '%${info}%' or a.category = #{info} or a.initiator = #{info}
+    </select>
+
+    <select id="getActivityByStudentInfo" resultMap="ActivityMap">
+        select a.id as aid, a.activity_name, a.category, a.initiator, a.start_time, a.end_time, s.*
+        from student s
+        left outer join student_activity sa on s.id = sa.sid
+        left outer join activity a on a.id=sa.aid
+        where s.student_id = #{studentInfo} or s.name = #{studentInfo}
+    </select>
+
+    <select id="findAll" resultMap="ActivityMap">
+        select a.id as aid, a.activity_name, a.category, a.initiator, a.start_time, a.end_time, s.*
+        from activity a
+        left outer join student_activity sa on a.id = sa.aid
+        left outer join student s on s.id = sa.sid
+    </select>
+
+    <select id="getMaxId" resultType="Integer">
+        SELECT MAX(id) FROM activity
+    </select>
+
+    <insert id="addActivity" parameterType="com.team9.project.models.Activity">
+        insert into activity(id, activity_name, category, initiator, start_time, end_time)
+        values (#{id}, #{activityName}, #{category}, #{initiator}, #{startTime}, #{endTime})
+    </insert>
+
+    <delete id="deleteActivityById">
+        delete
+        from activity
+        where id = #{id}
+    </delete>
+
+    <update id="updateActivity" parameterType="com.team9.project.models.Activity">
+        update activity
+        <set>
+            <if test="activityName!=null and activityName!=''">
+                activity_name = #{activityName},
+            </if>
+            <if test="category !=null and category !=''">
+                category = #{category},
+            </if>
+            <if test="initiator !=null and initiator !=''">
+                initiator = #{initiator},
+            </if>
+            <if test="startTime !=null">
+                start_time = #{startTime},
+            </if>
+            <if test="endTime !=null">
+                end_time = #{endTime},
+            </if>
+        </set>
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <delete id="deleteAllStudent">
+        delete
+        from student_activity
+        where aid = #{aid}
+    </delete>
+
+    <insert id="insertStudent">
+        insert into student_activity(sid, aid)
+        values (#{sid}, #{aid})
+    </insert>
+</mapper>

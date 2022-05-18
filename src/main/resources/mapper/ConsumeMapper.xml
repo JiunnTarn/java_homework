@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.team9.project.repository.mapper.ConsumeMapper">
+    <resultMap id="ConsumeMap" type="com.team9.project.models.Consume">
+        <id property="id" column="cid"/>
+        <result property="type" column="type"/>
+        <result property="reason" column="reason"/>
+        <result property="amount" column="amount"/>
+        <result property="time" column="time"/>
+        <collection property="student" ofType="com.team9.project.models.Student">
+            <id property="id" column="id"/>
+            <result property="studentId" column="student_id"/>
+            <result property="citizenId" column="citizen_id"/>
+            <result property="sex" column="sex"/>
+            <result property="age" column="age"/>
+            <result property="dept" column="dept"/>
+            <result property="birthday" column="birthday"/>
+            <result property="name" column="name"/>
+            <result property="phone" column="phone"/>
+            <result property="hometown" column="hometown"/>
+            <result property="highSchool" column="high_school"/>
+            <result property="politicalStatus" column="political_status"/>
+            <result property="classPosition" column="class_position"/>
+        </collection>
+    </resultMap>
+
+    <select id="getConsumeById" resultMap="ConsumeMap">
+        select c.id as cid, c.type, c.amount, c.reason, c.time, s.*
+        from consume c
+        left outer join student_consume sc on c.id = sc.cid
+        left outer join student s on s.id = sc.sid
+        where c.id = #{id}
+    </select>
+
+    <select id="getConsumeByConsumeInfo" resultMap="ConsumeMap">
+        select c.id as cid, c.type, c.amount, c.reason, c.time, s.*
+        from consume c
+        left outer join student_consume sc on c.id = sc.cid
+        left outer join student s on s.id = sc.sid
+        where c.reason like '%${info}%' or c.amount = #{info} or c.type = #{info}
+    </select>
+
+    <select id="getConsumeByStudentInfo" resultMap="ConsumeMap">
+        select c.id as cid, c.type, c.amount, c.reason, c.time, s.*
+        from student s
+        left outer join student_consume sc on s.id = sc.sid
+        left outer join consume c on c.id=sc.cid
+        where s.student_id = #{studentInfo} or s.name = #{studentInfo}
+    </select>
+
+    <select id="findAll" resultMap="ConsumeMap">
+        select c.id as cid, c.type, c.amount, c.reason, c.time, s.*
+        from consume c
+        left outer join student_consume sc on c.id = sc.cid
+        left outer join student s on s.id = sc.sid
+    </select>
+
+    <select id="getMaxId" resultType="Integer">
+        SELECT MAX(id) FROM consume
+    </select>
+
+    <insert id="addConsume" parameterType="com.team9.project.models.Consume">
+        insert into consume(id, type, amount, reason, time)
+        values (#{id}, #{type}, #{amount}, #{reason}, #{time})
+    </insert>
+
+    <delete id="deleteConsumeById">
+        delete
+        from consume
+        where id = #{id}
+    </delete>
+
+    <update id="updateConsume" parameterType="com.team9.project.models.Consume">
+        update consume
+        <set>
+            <if test="type!=null and type!=''">
+                type = #{type},
+            </if>
+            <if test="amount !=null">
+                amount = #{amount},
+            </if>
+            <if test="reason !=null and reason !=''">
+                reason = #{reason},
+            </if>
+            <if test="time !=null">
+                time = #{time},
+            </if>
+        </set>
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <delete id="deleteAllStudent">
+        delete
+        from student_consume
+        where cid = #{cid}
+    </delete>
+
+    <insert id="insertStudent">
+        insert into student_consume(sid, cid)
+        values (#{sid}, #{cid})
+    </insert>
+</mapper>

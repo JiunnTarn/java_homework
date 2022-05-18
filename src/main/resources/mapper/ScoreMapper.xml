@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.team9.project.repository.mapper.ScoreMapper">
+    <resultMap id="ScoreMap" type="com.team9.project.models.Score">
+        <id property="id" column="sid"/>
+        <result property="score" column="score"/>
+        <collection property="student" ofType="com.team9.project.models.Student">
+            <id property="id" column="id"/>
+            <result property="studentId" column="student_id"/>
+            <result property="citizenId" column="citizen_id"/>
+            <result property="sex" column="sex"/>
+            <result property="age" column="age"/>
+            <result property="dept" column="dept"/>
+            <result property="birthday" column="birthday"/>
+            <result property="name" column="name"/>
+            <result property="phone" column="phone"/>
+            <result property="hometown" column="hometown"/>
+            <result property="highSchool" column="high_school"/>
+            <result property="politicalStatus" column="political_status"/>
+            <result property="classPosition" column="class_position"/>
+        </collection>
+        <collection property="course" ofType="com.team9.project.models.Course">
+            <id property="id" column="cid"/>
+            <result property="courseName" column="course_name"/>
+            <result property="courseId" column="course_id"/>
+            <result property="book" column="book"/>
+            <result property="courseWare" column="course_ware"/>
+            <result property="resource" column="resource"/>
+            <result property="teacher" column="teacher"/>
+            <result property="time" column="time"/>
+            <result property="credit" column="credit"/>
+        </collection>
+    </resultMap>
+
+    <select id="getScoreById" resultMap="ScoreMap">
+        select score.id as sid, score.score, s.*, c.id as cid, c.course_name, c.course_id, c.book, c.course_ware, c.resource, c.teacher, c.time, c.credit
+        from score
+        left outer join student s on s.id = score.sid
+        left outer join course c on c.id = score.cid
+        where score.id = #{id}
+    </select>
+
+    <select id="getScoreByStudentInfo" resultMap="ScoreMap">
+        select score.id as sid, score.score, s.*, c.id as cid, c.course_name, c.course_id, c.book, c.course_ware, c.resource, c.teacher, c.time, c.credit
+        from student s
+        left outer join score on s.id = score.sid
+        left outer join course c on c.id=score.cid
+        where s.student_id = #{studentInfo} or s.name = #{studentInfo}
+    </select>
+
+    <select id="getScoreByCourseInfo" resultMap="ScoreMap">
+        select score.id as sid, score.score, s.*, c.id as cid, c.course_name, c.course_id, c.book, c.course_ware, c.resource, c.teacher, c.time, c.credit
+        from course c
+        left outer join score on c.id = score.cid
+        left outer join student s on s.id=score.sid
+        where c.course_id = #{courseInfo} or c.course_name = #{courseInfo}
+    </select>
+
+    <select id="findAll" resultMap="ScoreMap">
+        select score.id as sid, score.score, s.*, c.id as cid, c.course_name, c.course_id, c.book, c.course_ware, c.resource, c.teacher, c.time, c.credit
+        from score
+        left outer join student s on s.id = score.sid
+        left outer join course c on c.id = score.cid
+    </select>
+
+    <select id="getMaxId" resultType="Integer">
+        SELECT MAX(id) FROM score
+    </select>
+
+    <insert id="addScore">
+        insert into score(id, sid, cid, score)
+        values (#{id}, #{sid}, #{cid}, #{score})
+    </insert>
+
+    <delete id="deleteScoreById">
+        delete
+        from score
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteScoreByStudentId">
+        delete
+        from score
+        where sid = #{sid}
+    </delete>
+
+    <delete id="deleteScoreByCourseId">
+        delete
+        from score
+        where cid = #{cid}
+    </delete>
+
+    <update id="updateScore">
+        update score
+        <set>
+            <if test="sid!=null and sid!=''">
+                sid = #{sid},
+            </if>
+            <if test="cid !=null and cid !=''">
+                cid = #{cid},
+            </if>
+            <if test="score !=null">
+                score = #{score},
+            </if>
+        </set>
+        <where>
+            id = #{id}
+        </where>
+    </update>
+</mapper>

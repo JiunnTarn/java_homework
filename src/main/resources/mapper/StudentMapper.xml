@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.team9.project.repository.mapper.StudentMapper">
+    <resultMap id="StudentMap" type="com.team9.project.models.Student">
+        <id property="id" column="id"/>
+        <result property="studentId" column="student_id"/>
+        <result property="citizenId" column="citizen_id"/>
+        <result property="sex" column="sex"/>
+        <result property="age" column="age"/>
+        <result property="dept" column="dept"/>
+        <result property="birthday" column="birthday"/>
+        <result property="name" column="name"/>
+        <result property="phone" column="phone"/>
+        <result property="hometown" column="hometown"/>
+        <result property="highSchool" column="high_school"/>
+        <result property="politicalStatus" column="political_status"/>
+        <result property="classPosition" column="class_position"/>
+    </resultMap>
+
+    <select id="getStudentById" resultMap="StudentMap">
+        select s.*
+        from student s
+        where id = #{id}
+    </select>
+
+    <select id="getStudentByStudentInfo" resultMap="StudentMap">
+        select *
+        from student
+        where student_id = #{studentInfo}
+           or citizen_id = #{studentInfo}
+           or sex = #{studentInfo}
+           or name = #{studentInfo}
+           or phone = #{studentInfo}
+           or hometown = #{studentInfo}
+           or political_status = #{studentInfo}
+           or class_position = #{studentInfo}
+    </select>
+
+    <select id="findAll" resultMap="StudentMap">
+        select *
+        from student
+    </select>
+
+    <select id="getMaxId" resultType="Integer">
+        SELECT MAX(id)
+        FROM student
+    </select>
+
+    <insert id="addStudent" parameterType="com.team9.project.models.Student">
+        insert into student(id, student_id, citizen_id, sex, age, dept, birthday, name, phone, hometown, high_school,
+                            political_status, class_position)
+        values (#{id}, #{studentId}, #{citizenId}, #{sex}, #{age}, #{dept}, #{birthday}, #{name}, #{phone}, #{hometown},
+                #{highSchool}, #{politicalStatus}, #{classPosition})
+    </insert>
+
+    <delete id="deleteStudentById">
+        delete from student where id = #{id}
+    </delete>
+
+    <delete id="deleteStudentCourseById">
+        delete from student_course where sid = #{id};
+    </delete>
+
+    <update id="updateStudent" parameterType="com.team9.project.models.Student">
+        update student
+        <set>
+            <if test="studentId!=null and studentId!=''">
+                student_id = #{studentId},
+            </if>
+            <if test="citizenId !=null and citizenId !=''">
+                citizen_id = #{citizenId},
+            </if>
+            <if test="sex !=null and sex !=''">
+                sex = #{sex},
+            </if>
+            <if test="age !=null">
+                age = #{age},
+            </if>
+            <if test="dept !=null and dept !=''">
+                dept = #{dept},
+            </if>
+            <if test="birthday !=null">
+                birthday = #{birthday},
+            </if>
+            <if test="name !=null and name !=''">
+                name = #{name},
+            </if>
+            <if test="phone !=null and phone !=''">
+                phone = #{phone},
+            </if>
+            <if test="hometown !=null and hometown !=''">
+                hometown = #{hometown},
+            </if>
+            <if test="highSchool !=null and highSchool !=''">
+                high_school = #{highSchool},
+            </if>
+            <if test="politicalStatus !=null and politicalStatus !=''">
+                political_status = #{politicalStatus},
+            </if>
+            <if test="classPosition !=null and classPosition !=''">
+                class_position = #{classPosition},
+            </if>
+        </set>
+        <where>
+            id = #{id}
+        </where>
+    </update>
+</mapper>

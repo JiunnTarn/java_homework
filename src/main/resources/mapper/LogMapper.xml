@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.team9.project.repository.mapper.LogMapper">
+    <resultMap id="LogMap" type="com.team9.project.models.Log">
+        <id property="id" column="lid"/>
+        <result property="destination" column="destination"/>
+        <result property="applyTime" column="apply_time"/>
+        <result property="leaveTime" column="leave_time"/>
+        <result property="returnTime" column="return_time"/>
+        <result property="reason" column="reason"/>
+        <result property="status" column="status"/>
+        <collection property="student" ofType="com.team9.project.models.Student">
+            <id property="id" column="id"/>
+            <result property="studentId" column="student_id"/>
+            <result property="citizenId" column="citizen_id"/>
+            <result property="sex" column="sex"/>
+            <result property="age" column="age"/>
+            <result property="dept" column="dept"/>
+            <result property="birthday" column="birthday"/>
+            <result property="name" column="name"/>
+            <result property="phone" column="phone"/>
+            <result property="hometown" column="hometown"/>
+            <result property="highSchool" column="high_school"/>
+            <result property="politicalStatus" column="political_status"/>
+            <result property="classPosition" column="class_position"/>
+        </collection>
+    </resultMap>
+
+    <select id="getLogById" resultMap="LogMap">
+        select l.id as lid, l.destination, l.apply_time, l.leave_time, l.return_time, l.reason, l.status, s.* from log l
+        left outer join student_log sl on l.id = sl.lid
+        left outer join student s on s.id=sl.sid
+        where l.id = #{id}
+    </select>
+
+    <select id="getLogByLogInfo" resultMap="LogMap">
+        select l.id as lid, l.destination, l.apply_time, l.leave_time, l.return_time, l.reason, l.status, s.* from log l
+                                                                                                                       left outer join student_log sl on l.id = sl.lid
+                                                                                                                       left outer join student s on s.id=sl.sid
+        where l.destination like '%${logInfo}%' or l.reason like '%${logInfo}%' or l.status = #{logInfo}
+    </select>
+
+    <select id="getLogByStudentInfo" resultMap="LogMap">
+        select l.id as lid, l.destination, l.apply_time, l.leave_time, l.return_time, l.reason, l.status, s.* from student s
+        left outer join student_log sl on s.id = sl.sid
+        left outer join log l on l.id=sl.lid
+        where s.student_id = #{studentInfo} or s.name = #{studentInfo}
+    </select>
+
+    <select id="findAll" resultMap="LogMap">
+        select s.*, l.id as lid, l.destination, l.apply_time, l.leave_time, l.return_time, l.reason, l.status from log l
+        left outer join student_log sl on l.id = sl.lid
+        left outer join student s on s.id=sl.sid
+    </select>
+
+    <select id="getMaxId" resultType="Integer">
+        SELECT MAX(id) FROM log
+    </select>
+
+    <insert id="addLog" parameterType="com.team9.project.models.Log">
+        insert into log(id, destination, apply_time, leave_time, return_time, reason, status)
+        values (#{id}, #{destination}, #{applyTime}, #{leaveTime}, #{returnTime}, #{reason}, #{status})
+    </insert>
+
+    <delete id="deleteLogById">
+        delete from log where id = #{lid}
+    </delete>
+
+    <update id="updateLog" parameterType="com.team9.project.models.Log">
+        update log
+        <set>
+            <if test="destination !=null and destination !=''">
+                destination = #{destination},
+            </if>
+            <if test="applyTime !=null">
+                apply_time = #{applyTime},
+            </if>
+            <if test="leaveTime !=null">
+                leave_time = #{leaveTime},
+            </if>
+            <if test="returnTime !=null">
+                return_time = #{returnTime},
+            </if>
+            <if test="reason !=null and reason !=''">
+                reason = #{reason},
+            </if>
+            <if test="status !=null and status !=''">
+                status = #{status},
+            </if>
+        </set>
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <delete id="deleteAllStudent">
+        delete
+        from student_log
+        where lid = #{lid};
+    </delete>
+
+    <insert id="insertStudent">
+        insert into student_log(sid, lid)
+        values (#{sid}, #{lid})
+    </insert>
+
+</mapper>
